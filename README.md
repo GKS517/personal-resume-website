@@ -51,18 +51,31 @@ https://<你的用户名>.github.io/resume/
 
 之后改内容重新上传覆盖，1 分钟左右自动更新。
 
-### 方式 B：命令行
+### 方式 B：命令行（本机已配置好，直接用）
+
+本机 `github.com:443`（HTTPS）被网络阻断，所以 remote 走 SSH：
 
 ```bash
 cd "C:/Users/Admin1/Desktop/个人简历网站"
-git init -b main
-git add .
-git commit -m "init resume site"
-git remote add origin https://github.com/<用户名>/resume.git
-git push -u origin main
+git add -A
+git commit -m "改了什么"
+git push
 ```
 
-推送后按方式 A 第 4 步开启 Pages。
+SSH 通过 `ssh.github.com:443` 出网（见 `~/.ssh/config`），已用本机公钥登记为仓库 **Deploy Key**，只对这个仓库有效。
+
+> 换电脑 / 重装系统后若要重新配置：把 `~/.ssh/id_ed25519.pub` 内容加到仓库
+> **Settings → Deploy keys → Add deploy key**，勾选 *Allow write access*。
+
+### 方式 C：HTTPS 全断时的备用推送
+
+`git push` 仍失败（比如公司网络连 22/443 都封）时，走 GitHub REST API 推送，脚本已放在 `.workbuddy/tools/`：
+
+```bash
+node .workbuddy/tools/push-via-api.mjs
+```
+
+原理是用 Git Data API 复刻本地提交对象，生成的新提交 SHA 与本地完全一致，不会造成历史分叉。
 
 ---
 
